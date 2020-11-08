@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{user.name}}</title>
+    <title>{{user.name}} - {{course.name}}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-divider@0.2.0/dist/css/bulma-divider.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.css">
     <style>
@@ -27,24 +27,24 @@
             </div>
         </div>
     </nav>
-    {% if courses %}
+    {% if assignments %}
     <div class="section">
         <div class="tile is-ancestor">
             <div class="tile is-parent">
                 <div class="card tile is-child">
                     <div class="card-content">
                         <div class="title is-4 has-text-link">Most Recent Grade</div>
-                        <div class="subtitle is-3">{{recent.course.name}} - {{recent.name}}<br>
-                            <span class="has-text-weight-bold">{{recent.score}}</span></div>
+                        <div class="subtitle is-3">{{recent.name}}<br>
+                            <span class="has-text-weight-bold">{{recent.score}}%</span></div>
                     </div>
                 </div>
             </div>
             <div class="tile is-parent">
                 <div class="card tile is-child">
                     <div class="card-content">
-                        <div class="title is-4 has-text-link">Lowest Course Grade</div>
+                        <div class="title is-4 has-text-link">Lowest Grade</div>
                         <div class="subtitle is-3">{{low.name}}<br><span
-                                class="has-text-weight-bold">{{low.grade}}</span>
+                                class="has-text-weight-bold">{{low.score}}%</span>
                         </div>
                     </div>
                 </div>
@@ -62,16 +62,16 @@
             <canvas id="chart" width="2596" height="800"></canvas>
         </div>
 
-        <div class="tile is-ancestor is-centered">
+        <div class="tile is-ancestor">
             {% for course in courses %}
-                <div class="tile is-parent">
-                    <div class="tile is-child card">
-                        <div class="card-content">
-                            <div class="title is-4 has-text-link">{{course.name}}</div>
-                            <div class="subtitle is-3 has-text-weight-bold">{{course.grade}}%</div>
-                        </div>
+            <div class="tile is-parent">
+                <div class="tile is-child card">
+                    <div class="card-content">
+                        <div class="title is-4 has-text-link">{{course.name}}</div>
+                        <div class="subtitle is-3 has-text-weight-bold">{{course.grade}}%</div>
                     </div>
                 </div>
+            </div>
             {% endfor %}
 
         </div>
@@ -114,12 +114,13 @@
 
             // The data for our dataset
             data: {
-                labels: [{{ empty | safe }}], // DO NOT FORMAT BAD FORMATTER
-                datasets: [{
-                    label: 'My First dataset',
-                    backgroundColor: 'transparent',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: [{{ grades | safe }}]
+                labels: [{{ empty | safe }
+        }], // DO NOT FORMAT BAD FORMATTER
+            datasets: [{
+                label: 'My First dataset',
+                backgroundColor: 'transparent',
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{{ grades | safe }}]
                 }]
             },
 
@@ -136,7 +137,7 @@
 
     </script>
     {% endif %}
-    {% if not courses %}
+    {% if not assignments %}
     <div class="section">
         <div class="card p-5 mb-5">
             Data not collected yet

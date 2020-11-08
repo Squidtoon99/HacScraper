@@ -10,23 +10,26 @@ class Course(Item):  # /HomeAccess/Classes/Schedule
     name = Field()
     teacher = Field()
     period = Field()
-    teacher = Field()
     room = Field()
     marking_periods = Field()
     building = Field()
     status = Field()
-    doctype = "course"
+    user_id = Field()
+    grade = Field()
+    doctype = Field()
 
 
 class Assignment(Item):
     course = Field()
-    assignment = Field()
+    name = Field()
     category = Field()
     date_due = Field()
+    days = Field()
     score = Field()
     points = Field()
     weight = Field()
     extra_credit = Field()
     description = Field()
     class_average = Field()
-    doctype = "assignment"
+    user_id = Field()
+    doctype = Field()

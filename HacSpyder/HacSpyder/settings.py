@@ -97,12 +97,13 @@ db = pymongo.MongoClient(host=MONGO_URI).Main
 
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 # for async code
-from shutil import which 
+from shutil import which
 
-DOWNLOADER_MIDDLEWARES = {
-    'scrapy_selenium.SeleniumMiddleware': 800
-}
+DOWNLOADER_MIDDLEWARES = {"scrapy_selenium.SeleniumMiddleware": 800}
 
-SELENIUM_DRIVER_NAME = 'firefox'
-SELENIUM_DRIVER_EXECUTABLE_PATH = which('geckodriver')
-SELENIUM_DRIVER_ARGUMENTS=[]#['-headless']  # '--headless' if using chrome instead of firefox
+SELENIUM_DRIVER_NAME = "firefox"
+SELENIUM_DRIVER_EXECUTABLE_PATH = which("geckodriver")
+SELENIUM_DRIVER_ARGUMENTS = (
+    []
+)  # ['-headless']  # '--headless' if using chrome instead of firefox
+

@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 from subprocess import Popen, PIPE
 from urllib.parse import urlparse
 from pymongo import MongoClient
+from timeloop import Timeloop
+from datetime import timedelta
+
 
 app = Flask(__name__)
 
@@ -22,9 +25,109 @@ def login():
     return render_template("login.html")
 
 
+# @app.route("/user/<user>/<course>")
+# def coursepage(user, course):
+#     user = db.Users.find_one({"doctype": "user", "username": user})
+
+#     if user:
+#         course = db.Courses.find_one(
+#             {"user_id": str(user["_id"]), "id": course, "doctype": "course"}
+#         )
+#         if not course:
+#             return redirect("../")
+
+#         assignments = [doc for doc in db.Assignments.aggregate([
+#             {'$match':{'user_id':str(user['_id']), 'course.id':str(course['id']),'doctype':'assignment'}},
+#             {'$sort':{'date_due',-1}},
+#         ])]
+
+#         if assignments:
+#             lowestGrade = min(assignments, key=lambda a: a["score"])
+
+#             mostRecentGrade = next(filter(lambda a: a["score"], assignments))
+#         else:
+#             lowestGrade, mostRecentGrade = None
+
+#         grades = [a.get("score") for a in assignments]
+#         if len(grades) == 1:
+#             grades = grades * 2
+
+#         empty = ["''"] * len(grades)
+#         empty = ",".join(empty)
+#         grades = ",".join(grades)
+
+#         return render_template(
+#             "user.html",
+#             **{
+#                 "user": user,
+#                 "course": course,
+#                 "assignments": assignments,
+#                 "count": len(assignments),
+#                 "low": lowestGrade,
+#                 "recent": mostRecentGrade,
+#                 "grades": grades,
+#                 "empty": empty,
+#             },
+#         )
+
+
 @app.route("/user/<user>")
-def userPage():
-    pass
+def userPage(user):
+    user = db.Users.find_one({"doctype": "user", "username": user})
+    if user:
+        courses = [
+            i
+            for i in db.Courses.find({"user_id": str(user["_id"]), "doctype": "course"})
+        ]
+
+        for c in courses:
+            if not c["grade"]:
+                c["grade"] = 100
+            else:
+                c["grade"] = str(c["grade"])
+
+        assignments = [
+            i
+            for i in db.Assignments.find(
+                {"user_id": str(user["_id"]), "doctype": "assignment"}
+            ).sort("date_due", -1)
+        ]
+
+        for a in assignments:
+            a["score"] = str(a["score"])
+        if not courses or not assignments:
+            return
+
+        lowestGrade = min(courses, key=lambda course: course["grade"])
+        mostRecentGrade = min(
+            filter(lambda a: a["score"], assignments),
+            key=lambda course: course["score"],
+        )
+
+        grades = [a.get("score") for a in assignments]
+        if len(grades) == 1:
+            grades = grades * 2
+
+        empty = ["''"] * len(grades)
+        empty = ",".join(empty)
+        grades = ",".join(grades)
+
+        return render_template(
+            "user.html",
+            **{
+                "user": user,
+                "courses": courses,
+                "assignments": assignments,
+                "count": len(courses),
+                "low": lowestGrade,
+                "recent": mostRecentGrade,
+                "grades": grades,
+                "empty": empty,
+            },
+        )
+
+    else:
+        return redirect("/")
 
 
 @app.route("/add_user", methods=["POST", "GET"])
@@ -46,6 +149,9 @@ def add_user():
         },
         upsert=True,
     )
+
+    scrapeNonJob()
+
     return redirect("/")
     # url = request.form["url"]
     # base = [
@@ -113,8 +219,21 @@ def add_user():
     #     return name or "hmm is that right?"
 
 
+tl = Timeloop()
+
+
+@tl.job(interval=timedelta(seconds=60))
+def scrape():
+    process = Popen(["py", "HacSpyder"], stdout=PIPE, stderr=PIPE)
+    stdout, stderr = process.communicate()
+
+
+def scrapeNonJob():
+    process = Popen(["py", "HacSpyder"], stdout=PIPE, stderr=PIPE)
+    stdout, stderr = process.communicate()
+
+
 if __name__ == "__main__":
     app.run("localhost", 80)
 
-    process = Popen(["py", "HacSpyder"], stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
+    tl.start(block=True)

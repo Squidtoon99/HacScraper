@@ -10,6 +10,7 @@ from ..items import Course, Assignment
 from .. import settings
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from scrapy_selenium import SeleniumRequest
 import asyncio
 
@@ -72,13 +73,13 @@ class HacSpydermainSpider(Spider):
         driver.find_element_by_id("LogOnDetails_Password").send_keys(data["password"])
         driver.find_element_by_xpath("//button [@id='login']").click()
         yield SeleniumRequest(
-                url=f"{data['url']}/HomeAccess/",
-                headers=headers,
-                callback=self.handle_auth_user,
-                wait_time=10,
-                dont_filter=True,
-                meta={"cookiejar": data["_id"], "user": data},
-            )
+            url=f"{data['url']}/HomeAccess/",
+            headers=headers,
+            callback=self.handle_auth_user,
+            wait_time=10,
+            dont_filter=True,
+            meta={"cookiejar": data["_id"], "user": data},
+        )
 
     async def handle_auth_user(self, response):
         user = response.meta["user"]
@@ -88,65 +89,99 @@ class HacSpydermainSpider(Spider):
                 url=user["url"] + "/HomeAccess/Classes/Schedule",
                 callback=self.parse_courses,
                 dont_filter=True,
+                # wait_time=30,
+                # wait_until=EC.text_to_be_present_in_element(
+                #     (By.ID, "plnMain_pageTitle"), "2020 - 2021 Schedule"
+                # ),
                 meta={"cookiejar": response.meta["cookiejar"], "user": user},
             )
         yield SeleniumRequest(
-            url=user["url"] + "/HomeAccess/Classes/Classwork/Assignments.aspx",
+            url=user["url"] + "/HomeAccess/Classes/Classwork",
             callback=self.parse_assignments,
             dont_filter=True,
+            # wait_until=EC.text_to_be_present_in_element(
+            #    (By.ID, "plnMain_lblForRCardRun"), "Report Card Run"
+            # ),
+            # wait_time=30,
             meta={"cookiejar": response.meta["cookiejar"], "user": user},
         )
 
     async def parse_assignments(self, response):
+        driver = response.meta["driver"]
+        try:
+            elem = driver.find_element_by_xpath("//iframe")
+            driver.switch_to_frame(elem.get_attribute("id"))
+        except:
+            pass
         user = response.meta["user"]
         data = lambda course, num: course.xpath(f"td[{num}]//text()").extract_first()
         first = True
-        for good_counting, course in enumerate(
-            response.xpath('//div [@class="AssignmentClass"]')
-        ):
 
-            messy_course_name = response.xpath(
-                f"//a [@class='sg-header-heading'])[{good_counting}]"
-            ).get()
 
-            course_split = messy_course_name.split()
-            course_name = " ".join(course[3:])
-            course_id = " ".join(course[:3])
-            first = True
-            for assignment in course.xpath(""):
-                if first:
-                    first = not first
-                    continue  # skipping first iteration for useless data
+            # messy_course_name = response.xpath(
+            #     f"//a [@class='sg-header-heading'])[{good_counting}]"
+            # ).get()
 
-                item = Assignment()
-                item.date_due = datetime.strptime("%m/%d/%Y", data(assignment, 0))
-                # item.date_created = datetime.strptime("%m/%d/%Y", data(assignment, 1))
-                item.assignment = data(assignment, 2)
-                item.category = data(assignment, 3)
-                item.score = data(assignment, 4)
-                item.class_average = data(assignment, 9)
-                item.course = {"name": course_name, "id": course_id}
-                yield item
+            # course_split = messy_course_name.split()
+            # course_name = " ".join(course[3:])
+            # course_id = " ".join(course[:3])
+            # first = True
+        for assignment in course.xpath(""):
+            if first:
+                first = not first
+                continue  # skipping first iteration for useless data
+
+            item = Assignment()
+            item.date_due = datetime.strptime("%m/%d/%Y", data(assignment, 0))
+            # item.date_created = datetime.strptime("%m/%d/%Y", data(assignment, 1))
+            item.name = data(assignment, 2)
+
+            item.category = data(assignment, 3)
+            item.score = data(assignment, 4)
+            item.class_average = data(assignment, 9)
+            item.course = {"name": course_name, "id": course_id}
+            item.user_id = user["_id"]
+
+            yield item
 
     async def parse_courses(self, response):
+        driver = response.meta["driver"]
+        try:
+            elem = driver.find_element_by_xpath("//iframe")
+            driver.switch_to_frame(elem.get_attribute("id"))
+        except:
+            pass
         user = response.meta["user"]
         data = lambda course, num: course.xpath(f"td[{num}]//text()").extract_first()
         first = True
-        for c in response.xpath('//table [@class="sg-asp-table"]//tbody//tr'):
+
+        for x in driver.find_elements_by_xpath(
+            '//table [@class="sg-asp-table"]//tbody//tr'
+        ):
             if first:
                 first = not first
                 continue  # skipping first iteration but scrapy xpath
 
             item = Course()
+            it = iter(x.find_elements_by_xpath(".//*"))
+            for pos, i in enumerate(
+                [
+                    "id",
+                    "name",
+                    "status",
+                    "marking_periods",
+                    "room",
+                    "teacher",
+                    "building",
+                    "period",
+                    
+                ]
+            ):
+                try:
+                    item[i] = next(it).text
+                except StopIteration:
+                    break
 
-            item.id = data(c, 1)
-            item.name = data(c, 2)
-            item.period = data(c, 3)
-            item.teacher = data(c, 4)
-            item.room = data(c, 5)
-            item.days = data(c, 6)
-            item.marking_periods = data(c, 7)
-            item.building = data(c, 8)
-            item.status = data(c, 9)
-            item.user = user["_id"]
+            item["user_id"] = user["_id"]
+            item["doctype"] = "course"
             yield item
