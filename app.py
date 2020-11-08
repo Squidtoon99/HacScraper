@@ -234,6 +234,5 @@ def scrapeNonJob():
 
 
 if __name__ == "__main__":
+    tl.start(block=False)
     app.run("localhost", 80)
-
-    tl.start(block=True)

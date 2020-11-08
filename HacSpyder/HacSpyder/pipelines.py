@@ -17,15 +17,6 @@ import settings
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-MAIL_PARAMS = {
-    "TLS": settings.EMAIL_TLS,
-    "host": settings.EMAIL_HOST,
-    "password": settings.EMAIL_PASSWORD,
-    "user": settings.EMAIL_USER,
-    "port": settings.EMAIL_PORT,
-}
-
-
 class MongoPipeline:
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri

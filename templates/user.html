@@ -94,7 +94,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for assignment in assignments %}
+                        {% for assignment in assignments | reverse %}
                         <tr>
                             <td>{{assignment.name}}</td>
                             <td>{{assignment.course.name}}</td>

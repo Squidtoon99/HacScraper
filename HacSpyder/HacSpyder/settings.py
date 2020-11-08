@@ -106,4 +106,3 @@ SELENIUM_DRIVER_EXECUTABLE_PATH = which("geckodriver")
 SELENIUM_DRIVER_ARGUMENTS = (
     []
 )  # ['-headless']  # '--headless' if using chrome instead of firefox
-

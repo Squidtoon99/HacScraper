@@ -126,7 +126,7 @@ class HacSpydermainSpider(Spider):
             # course_name = " ".join(course[3:])
             # course_id = " ".join(course[:3])
             # first = True
-        for assignment in course.xpath(""):
+        for assignment in driver.find_elements_by_xpath(""):
             if first:
                 first = not first
                 continue  # skipping first iteration for useless data
