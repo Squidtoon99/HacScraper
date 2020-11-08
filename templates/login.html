@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" class="has-background-link-light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="hero is-fullheight">
+        <nav class="navbar is-fixed-top has-background-white" style='box-shadow: 0 0 1em 0 rgba(10,10,10,0.1)'>
+            <div class="navbar-brand">
+                <a href="/">
+                    <div class="navbar-item has-text-weight-bold has-text-link title is-4">Better HAC</div>
+                </a>
+            </div>
+            <div class="navbar-menu">
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        Add User
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-8">
+                        <form action="/add_user" method="post" class="box">
+                            <label for="name" class="label">Name</label>
+                            <div class="control has-icons-left">
+                                <input type="text" class="input" placeholder="Put your name here!" name="name">
+
+                                <span class="icon is-small is-left">
+                                    <i class="fa fa-address-card"></i>
+                                </span>
+                            </div>
+                            <br>
+                            <label for="username" class="label">Username</label>
+                            <div class="control has-icons-left">
+                                <input type="text" class="input" placeholder="Put your school username here!"
+                                    name="username">
+
+                                <span class="icon is-small is-left">
+                                    <i class="fa fa-user"></i>
+                                </span>
+                            </div>
+                            <br>
+                            <label for="password" class="label">Password</label>
+                            <div class="control has-icons-left">
+                                <input type="password" class="input" placeholder="Put your school password here!"
+                                    name="password">
+
+                                <span class="icon is-small is-left">
+                                    <i class="fa fa-unlock"></i>
+                                </span>
+                            </div>
+                            <br>
+                            <label for="url" class="label">URL</label>
+                            <div class="control has-icons-left">
+                                <input type="text" class="input" placeholder="Put your HAC url here!" name="url">
+
+                                <span class="icon is-small is-left">
+                                    <i class="fa fa-link"></i>
+                                </span>
+                            </div>
+                            <br>
+                            <button type="submit" class="button is-success">Add User!</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" class="has-background-link-light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose a student</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.css">
+</head>
+
+<body>
+    <div class="hero is-fullheight">
+        <nav class="navbar is-fixed-top has-background-white" style='box-shadow: 0 0 1em 0 rgba(10,10,10,0.1)'>
+            <div class="navbar-brand">
+                <a href="/">
+                    <div class="navbar-item has-text-weight-bold has-text-link title is-4">Better HAC</div>
+                </a>
+            </div>
+            <div class="navbar-menu">
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        Student Selection
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+        <div class="hero-body">
+            <div class="container">
+                <div class="box is-vcentered">
+                    <h1 class="title has-text-dark">Choose your student</h1>
+                    {% for user in users %}
+                    <a href='/user/{{ user["username"] }}'><button
+                            class="button is-primary">{{ user['name'] }}</button></a>
+                    {% endfor %}
+                    <a href='/login'><button class="button is-danger">Add new student</button></a>
+                </div>
+            </div>
+        </div>
